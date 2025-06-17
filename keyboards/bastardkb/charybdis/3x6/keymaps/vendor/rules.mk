@@ -2,6 +2,8 @@ VIA_ENABLE = yes
 CONSOLE_ENABLE = yes
 EXTRAKEY_ENABLE = yes
 
+KEY_OVERRIDE_ENABLE = yes
+
 # MACCEL
 MACCEL_VIA_ENABLE = no
 SRC += ./maccel/maccel.c

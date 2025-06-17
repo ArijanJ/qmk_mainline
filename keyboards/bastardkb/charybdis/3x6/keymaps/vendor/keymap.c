@@ -62,6 +62,11 @@ static uint16_t auto_pointer_layer_timer = 0;
 #define LGUI_CBS MT(MOD_LGUI, KC_BSPC)
 #define BROWSE_CBS LT(LAYER_BROWSE, KC_BSPC)
 
+enum custom_keycodes {
+     FAKE_MOD = SAFE_RANGE,
+ };
+ bool fake_mod_active = false;
+
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      [LAYER_BASE] = LAYOUT(
@@ -106,7 +111,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           XXXXXXX, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,         KC_6,     KC_7,    KC_8,    KC_9,    KC_0, _______,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          XXXXXXX, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5,                KC_F6, KC_F7, KC_F8, KC_F9, KC_DOT, KC_F11,
+          XXXXXXX, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5,                KC_F6, KC_F7, KC_F8, KC_F9, KC_DOT, KC_F12,
      // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
                                         XXXXXXX, XXXXXXX, _______,    XXXXXXX, _______
      //                            ╰───────────────────────────╯ ╰──────────────────╯
@@ -117,9 +122,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
           MO(LAYER_INTERNALS), XXXXXXX, C(KC_W), XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          XXXXXXX, XXXXXXX, XXXXXXX, MEDIA, XXXXXXX, XXXXXXX,        A(KC_LEFT), C(KC_TAB), C(S(KC_TAB)), A(KC_RGHT), XXXXXXX, XXXXXXX,
+          KC_LCTL, XXXXXXX, XXXXXXX, MEDIA, XXXXXXX, XXXXXXX,        A(KC_LEFT), C(KC_TAB), C(S(KC_TAB)), A(KC_RGHT), XXXXXXX, XXXXXXX,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+          FAKE_MOD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
      // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
                                         XXXXXXX, XXXXXXX, _______,    XXXXXXX, _______
      //                            ╰───────────────────────────╯ ╰──────────────────╯
@@ -139,11 +144,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
      [LAYER_SYMBOL] = LAYOUT(
           // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-               XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, LSFT(KC_LBRC), KC_EQUAL, LSFT(KC_RBRC), KC_MINUS, XXXXXXX,
+               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, LSFT(KC_LBRC), KC_EQUAL, LSFT(KC_RBRC), KC_MINUS, XXXXXXX,
           // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-               XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    KC_LBRC, LSFT(KC_9), KC_BSLS, LSFT(KC_0), KC_LBRC, XXXXXXX,
+               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    KC_LBRC, LSFT(KC_9), KC_BSLS, LSFT(KC_0), KC_LBRC, KC_SCLN,
           // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-               XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, XXXXXXX, XXXXXXX, KC_MINUS, S(KC_MINUS), KC_GRAVE,
+               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, XXXXXXX, XXXXXXX, KC_MINUS, S(KC_MINUS), KC_GRAVE,
           // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
                                              XXXXXXX, KC_LSFT, _______,    KC_LSFT, _______
           //                            ╰───────────────────────────╯ ╰──────────────────╯
@@ -188,9 +193,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
      [LAYER_POINTER] = LAYOUT(
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-          _______,  _______, _______, _______, _______, _______,   _______, _______, KC_BTN3, _______,  _______, _______,
+          _______,  _______, _______, _______, _______, _______,   _______, _______, _______, _______,  _______, _______,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          _______, _______, _______, _______, _______, _______,  _______, KC_BTN1, DRGSCRL, KC_BTN2, SNIPING, _______,
+          _______, _______, _______, _______, _______, _______,  _______, KC_BTN1, KC_BTN3, KC_BTN2, SNIPING, _______,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           _______, _______, _______, _______, _______, _______,    KC_BTN3, KC_BTN1, DRGSCRL, KC_BTN2, SNIPING, _______,
      // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
@@ -205,7 +210,7 @@ void keyboard_post_init_user(void) {
 }
 
 static uint16_t custom_trackball_counter = 0;
-#define CUSTOM_TRACKBALL_TRIGGER_COUNT 5 // Replace 5 with your desired X
+#define CUSTOM_TRACKBALL_TRIGGER_COUNT 10
 
 #ifdef POINTING_DEVICE_ENABLE
 #    ifdef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
@@ -226,13 +231,21 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
           if (mouse_report.y > 0) {
                custom_trackball_counter++;
                if (custom_trackball_counter >= CUSTOM_TRACKBALL_TRIGGER_COUNT) {
-                    tap_code(KC_VOLD);
+                    if (fake_mod_active) {
+                         tap_code(KC_BRID);
+                    } else {
+                         tap_code(KC_VOLD);
+                    }
                     custom_trackball_counter = 0;
                }
           } else if (mouse_report.y < 0) {
                custom_trackball_counter++;
                if (custom_trackball_counter >= CUSTOM_TRACKBALL_TRIGGER_COUNT) {
-                    tap_code(KC_VOLU);
+                    if (fake_mod_active) {
+                         tap_code(KC_BRIU);
+                    } else {
+                         tap_code(KC_VOLU);
+                    }
                     custom_trackball_counter = 0;
                }
           }
@@ -250,9 +263,12 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 
 #include "print.h"
 
-#define MOD_HELD_BUT_NOT_SHIFT (get_mods() & (MOD_MASK_CTRL | MOD_MASK_ALT | MOD_MASK_GUI))
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+     if (keycode == FAKE_MOD) {
+          fake_mod_active = record->event.pressed;
+          return false;
+     }
+
      if ((keycode == LGUI_CBS || keycode == BROWSE_CBS) && record->event.pressed) {
           if (record->tap.count && record->event.pressed) {
                tap_code16(C(KC_BSPC));
@@ -264,10 +280,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
           if (keycode != KC_BTN1 && keycode != KC_BTN2 && keycode != KC_BTN3) {
                if (keycode < QK_KB_0) {
                     uprintf("process_record_user: keycode %04X on pointer layer\n", keycode);
-                    if (!IS_MODIFIER_KEYCODE(keycode)) { // mod+mouse is also acceptable
+                    // if (!IS_MODIFIER_KEYCODE(keycode)) { // mod+mouse is also acceptable // or is it? mod+workspace e.g.
                          auto_pointer_layer_timer = 0;
                          layer_off(LAYER_POINTER); // disable mouse layer if non-mouse key pressed
-                    }
+                    // }
               }
          } else {
               auto_pointer_layer_timer = timer_read(); // reset timer on mouse press
@@ -351,3 +367,12 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
              return true;
      }
  }
+
+const key_override_t brightness_up_override = ko_make_basic(MOD_MASK_SHIFT, KC_VOLU, KC_BRIU);
+const key_override_t brightness_down_override = ko_make_basic(MOD_MASK_SHIFT, KC_VOLD, KC_BRID);
+
+// This globally defines all key overrides to be used
+const key_override_t *key_overrides[] = {
+     &brightness_up_override,
+     &brightness_down_override
+};
