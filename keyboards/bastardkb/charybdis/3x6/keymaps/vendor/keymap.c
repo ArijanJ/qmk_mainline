@@ -227,12 +227,14 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
     }
 
      // Volume keys on browse layer
-     if (layer_state_is(LAYER_BROWSE)) {
+     if (layer_state_is(LAYER_BROWSE) || layer_state_is(LAYER_NAV)) {
           if (mouse_report.y > 0) {
                custom_trackball_counter++;
                if (custom_trackball_counter >= CUSTOM_TRACKBALL_TRIGGER_COUNT) {
                     if (fake_mod_active) {
                          tap_code(KC_BRID);
+                    } else if (layer_state_is(LAYER_NAV)) {
+                         tap_code(KC_DOWN);
                     } else {
                          tap_code(KC_VOLD);
                     }
@@ -243,6 +245,8 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
                if (custom_trackball_counter >= CUSTOM_TRACKBALL_TRIGGER_COUNT) {
                     if (fake_mod_active) {
                          tap_code(KC_BRIU);
+                    } else if (layer_state_is(LAYER_NAV)) {
+                         tap_code(KC_UP);
                     } else {
                          tap_code(KC_VOLU);
                     }
