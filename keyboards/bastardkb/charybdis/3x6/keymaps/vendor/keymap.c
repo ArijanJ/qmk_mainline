@@ -89,7 +89,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           _______,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,       KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, _______,
      // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                                   _______,  _______,   _______,      _______,  _______
+                                   _______,  KC_LALT,   KC_LALT,      _______,  _______
      //                            ╰───────────────────────────╯ ╰──────────────────╯
      ),
 
@@ -97,7 +97,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
           _______, _______, _______, KC_END,  _______, _______,    _______,  _______,  _______, _______, _______, MO(LAYER_INTERNALS),
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          _______, KC_HOME, _______, KC_DEL, C(KC_RGHT),_______, KC_LEFT,    KC_DOWN, KC_UP, KC_RGHT, KC_BSPC, _______,
+          _______, KC_HOME, _______, KC_DEL, C(KC_RGHT),C(KC_HOME), KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_BSPC, _______,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           _______, _______, _______, _______,  EE_CLR, C(KC_LEFT), _______,    _______,    _______,    _______, _______, _______,
      // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
@@ -144,9 +144,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
      [LAYER_SYMBOL] = LAYOUT(
           // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, LSFT(KC_LBRC), KC_EQUAL, LSFT(KC_RBRC), KC_MINUS, XXXXXXX,
+               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, LSFT(KC_LBRC), KC_EQUAL, LSFT(KC_RBRC), KC_MINUS, KC_SCLN,
           // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    KC_LBRC, LSFT(KC_9), KC_BSLS, LSFT(KC_0), KC_LBRC, KC_SCLN,
+               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    KC_LBRC, LSFT(KC_9), KC_BSLS, LSFT(KC_0), KC_LBRC, C(KC_SCLN),
           // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
                _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, XXXXXXX, XXXXXXX, KC_MINUS, S(KC_MINUS), KC_GRAVE,
           // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
@@ -290,29 +290,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
          }
     }
 
-    // Switch to qwerty layer on modifiers
-//     if (IS_MODIFIER_KEYCODE(keycode) && keycode != KC_LSFT && keycode != KC_RSFT) {
-//         if (record->event.pressed) {
-//             layer_on(LAYER_QWERTY);
-//         } else {
-//             layer_off(LAYER_QWERTY);
-//         }
-//     }
-
      if (record->event.pressed) {
-          if ((get_mods() & ~MOD_MASK_SHIFT) && !(get_mods() & MOD_MASK_SHIFT)) {
+          uprintf("process_record_user: keycode %04X pressed, mods: %04X\n", keycode, get_mods());
+          if ((get_mods() != 0) && (!(get_mods() & MOD_MASK_SHIFT))) {
+               uprintf("process_record_user: activating layer LAYER_QWERTY\n");
                layer_on(LAYER_QWERTY);
-          } else {
-               if (layer_state_is(LAYER_QWERTY) && (get_mods() == 0 || get_mods() == MOD_MASK_SHIFT)) {
-                    layer_off(LAYER_QWERTY);
-               }
+          } else { // regular other key
+              if (layer_state_is(LAYER_QWERTY) && (get_mods() == 0 || get_mods() == MOD_MASK_SHIFT)) {
+                   uprintf("process_record_user: deactivating layer LAYER_QWERTY\n");
+                   layer_off(LAYER_QWERTY);
+              } else if (get_mods() != 0 && get_mods() != 2) {
+                   uprintf("process_record_user: [2] activating layer LAYER_QWERTY\n");
+                   layer_on(LAYER_QWERTY);
+              }
           }
      } else {
           if (get_mods() == 0 || get_mods() == MOD_MASK_SHIFT) {
-               layer_off(LAYER_QWERTY);
+              layer_off(LAYER_QWERTY);
           }
-     }
-
+      }
 //     if (get_mods() & ~MOD_MASK_SHIFT) {
 //           if (record->event.pressed) {
 //                layer_on(LAYER_QWERTY);
