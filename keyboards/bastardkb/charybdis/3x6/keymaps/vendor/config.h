@@ -81,7 +81,7 @@
 
 #define MACCEL_TAKEOFF 2.7      // lower/higher value = curve takes off more smoothly/abruptly
 #define MACCEL_GROWTH_RATE 0.1 // lower/higher value = curve reaches its upper limit slower/faster
-#define MACCEL_OFFSET 2.8       // lower/higher value = acceleration kicks in earlier/later
+#define MACCEL_OFFSET 2.5       // lower/higher value = acceleration kicks in earlier/later
 #define MACCEL_LIMIT 0.3       // lower limit of accel curve (minimum acceleration factor)
 
 
