@@ -91,7 +91,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           _______,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,       KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, _______,
      // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                                   _______,  KC_LALT,   KC_LALT,      _______,  _______
+                                   _______,  KC_SPC,   KC_LALT,      _______,  _______
      //                            ╰───────────────────────────╯ ╰──────────────────╯
      ),
 
@@ -124,7 +124,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
           MO(LAYER_INTERNALS), XXXXXXX, C(KC_W), XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          KC_LCTL, XXXXXXX, XXXXXXX, MEDIA, XXXXXXX, XXXXXXX,        A(KC_LEFT), C(KC_TAB), C(S(KC_TAB)), A(KC_RGHT), XXXXXXX, XXXXXXX,
+          KC_LCTL, XXXXXXX, XXXXXXX, MEDIA, XXXXXXX, DF(LAYER_QWERTY),        A(KC_LEFT), C(KC_TAB), C(S(KC_TAB)), A(KC_RGHT), XXXXXXX, XXXXXXX,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           FAKE_MOD, ZOOM_MOD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
      // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
@@ -139,16 +139,16 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                XXXXXXX, XXXXXXX, KC_MPRV, XXXXXXX, KC_MNXT, KC_MUTE,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
           // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
                XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-          // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                                             XXXXXXX, XXXXXXX, _______,    XXXXXXX, _______
+        // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
+        XXXXXXX, XXXXXXX, _______,    XXXXXXX, _______
           //                            ╰───────────────────────────╯ ╰──────────────────╯
           ),
 
      [LAYER_SYMBOL] = LAYOUT(
           // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, LSFT(KC_LBRC), KC_EQUAL, LSFT(KC_RBRC), KC_MINUS, KC_SCLN,
+               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, DF(LAYER_BASE),  XXXXXXX, LSFT(KC_LBRC), KC_EQUAL, LSFT(KC_RBRC), KC_MINUS, KC_SCLN,
           // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    KC_LBRC, LSFT(KC_9), KC_BSLS, LSFT(KC_0), KC_LBRC, S(KC_SCLN),
+               _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    KC_LBRC, LSFT(KC_9), KC_BSLS, LSFT(KC_0), KC_RBRC, S(KC_SCLN),
           // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
                _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,    XXXXXXX, XXXXXXX, XXXXXXX, KC_MINUS, S(KC_MINUS), KC_GRAVE,
           // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
@@ -312,7 +312,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
                     if (fake_mod_active) {
                         tap_code(KC_BRID);
                     } else if (zoom_mod_active) {
-                        tap_code16(C(KC_MINUS));
+                        tap_code16(S(C(KC_EQUAL)));
                     } else if (layer_state_is(LAYER_NAV)) {
                         tap_code(KC_DOWN);
                     } else {
@@ -322,7 +322,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
                     if (fake_mod_active) {
                         tap_code(KC_BRIU);
                     } else if (zoom_mod_active) {
-                        tap_code16(S(C(KC_EQUAL)));
+                        tap_code16(S(C(KC_MINUS)));
                     } else if (layer_state_is(LAYER_NAV)) {
                         tap_code(KC_UP);
                     } else {
