@@ -256,6 +256,9 @@ static void debug_charybdis_config_to_console(charybdis_config_t* config) {
 }
 
 bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
+    // create the 32bit timer for dragscroll:
+    static uint32_t dragscroll_timer = 0;
+
     if (!process_record_user(keycode, record)) {
         debug_charybdis_config_to_console(&g_charybdis_config);
         return false;
@@ -296,6 +299,14 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             }
             break;
         case DRAGSCROLL_MODE:
+            if (record->event.pressed) {
+                dragscroll_timer = timer_read32(); // start timer on dragscroll down
+            } else { // on release
+                if (!(timer_elapsed32(dragscroll_timer) > 150)) {
+                    tap_code16(KC_BTN3);
+                }
+                dragscroll_timer = 0; // nullify timer on dragscroll release
+            }
             charybdis_set_pointer_dragscroll_enabled(record->event.pressed);
             break;
         case DRAGSCROLL_MODE_TOGGLE:

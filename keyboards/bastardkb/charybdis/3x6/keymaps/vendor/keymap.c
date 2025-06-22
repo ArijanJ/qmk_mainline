@@ -69,10 +69,12 @@ enum custom_keycodes {
     FAKE_MOD = SAFE_RANGE,
     ZOOM_MOD,
     GAMING_TOGGLE,
+    HOLD_MOUSE_LAYER,
 };
 bool fake_mod_active = false;
 bool zoom_mod_active = false;
 bool is_gaming = false;
+bool hold_mouse_layer = false;
 
 // clang-format off
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
@@ -186,17 +188,17 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
           ),
 
 
-     [LAYER_POINTER] = LAYOUT(
-     // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-          _______,  _______, _______, _______, _______, _______,   _______, _______, _______, _______,  _______, _______,
-     // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          _______, _______, _______, _______, _______, _______,  _______, KC_BTN1, KC_BTN3, KC_BTN2, SNIPING, _______,
-     // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          _______, _______, _______, _______, _______, _______,    KC_BTN3, KC_BTN1, DRGSCRL, KC_BTN2, SNIPING, _______,
-     // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                                   _______, _______, _______,    _______, _______
-     //                            ╰───────────────────────────╯ ╰──────────────────╯
-     ),
+        [LAYER_POINTER] = LAYOUT(
+        // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
+            _______,  _______, _______, _______, _______, _______,   _______, _______, _______, _______,  _______, _______,
+        // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
+            _______, _______, _______, _______, _______, _______,    _______, _______, _______, _______, _______, _______,
+        // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
+            _______, _______, _______, _______, _______, _______,    _______, KC_BTN1, DRGSCRL, KC_BTN2, SNIPING, HOLD_MOUSE_LAYER,
+        // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
+                                    _______, _______, _______,    _______, _______
+        //                            ╰───────────────────────────╯ ╰──────────────────╯
+        ),
 };
 // clang-format on
 
@@ -355,6 +357,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     } else if (keycode == ZOOM_MOD) {
         zoom_mod_active = record->event.pressed;
         return false;
+    } else if (keycode == HOLD_MOUSE_LAYER) {
+        hold_mouse_layer = record->event.pressed;
+        return false;
     }
 
     if (keycode == GAMING_TOGGLE) {
@@ -418,7 +423,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 }
 
 void matrix_scan_user(void) {
-    if (auto_pointer_layer_timer != 0 && TIMER_DIFF_16(timer_read(), auto_pointer_layer_timer) >= CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_TIMEOUT_MS && !(charybdis_get_pointer_dragscroll_enabled()) && !(charybdis_get_pointer_sniping_enabled())) {
+    if (auto_pointer_layer_timer != 0 && TIMER_DIFF_16(timer_read(), auto_pointer_layer_timer) >= CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_TIMEOUT_MS
+        && !(charybdis_get_pointer_dragscroll_enabled()) && !(charybdis_get_pointer_sniping_enabled()) && !hold_mouse_layer) {
         auto_pointer_layer_timer = 0;
         layer_off(LAYER_POINTER);
 #        ifdef RGB_MATRIX_ENABLE
