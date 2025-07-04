@@ -64,6 +64,7 @@ static uint16_t auto_pointer_layer_timer = 0;
 #define BROWSE_CBS LT(LAYER_BROWSE, KC_BSPC)
 #define ESC_INT LT(LAYER_INTERNALS, KC_ESC)
 #define ESC_SYM LT(LAYER_SYMBOL, KC_ESC)
+#define MUTE_BROWSE LT(LAYER_BROWSE, KC_MUTE)
 
 enum custom_keycodes {
     FAKE_MOD = SAFE_RANGE,
@@ -86,7 +87,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           SFT_ESC,   KC_Q,    KC_J,    KC_V,    KC_D,    KC_K,      KC_X,    KC_H,   KC_SLSH, KC_COMM,  KC_DOT, C(KC_BSPC),
      // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                           LGUI_CBS,  NAV_SPC, MO(LAYER_BROWSE),  NAV_ENT,  SPC_NUM
+                              LGUI_CBS,  NAV_SPC, MUTE_BROWSE,      NAV_ENT,  SPC_NUM
      //                            ╰───────────────────────────╯ ╰──────────────────╯
      ),
 
@@ -153,11 +154,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
      [LAYER_MEDIA] = LAYOUT(
           // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-               XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+               XXXXXXX, XXXXXXX, C(KC_MPRV), KC_VOLU, C(KC_MNXT), XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
           // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-               XXXXXXX, XXXXXXX, KC_MPRV, XXXXXXX, KC_MNXT, KC_MUTE,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+               XXXXXXX, XXXXXXX, KC_MPRV, XXXXXXX, KC_MNXT, A(KC_MNXT),        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
           // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-               XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+               XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD, C(KC_MUTE), KC_MUTE,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
         // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
         XXXXXXX, XXXXXXX, _______,    XXXXXXX, _______
           //                            ╰───────────────────────────╯ ╰──────────────────╯
@@ -362,6 +363,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
 
+    if (keycode == NAV_ENT) {
+        if (is_gaming && record->tap.count && record->event.pressed) {
+            tap_code_delay(KC_ENTER, 16);
+            return false;
+        }
+    }
+
     if (keycode == GAMING_TOGGLE) {
         if (record->event.pressed) {
             layer_off(LAYER_NAV);
@@ -387,7 +395,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     if (layer_state_is(LAYER_POINTER)) {
         if (keycode != KC_BTN1 && keycode != KC_BTN2 && keycode != KC_BTN3) {
-            if (keycode < QK_KB_0) {
+            if (keycode < QK_KB_0 && !hold_mouse_layer) {
                 uprintf("process_record_user: keycode %04X on pointer layer\n", keycode);
                 // if (!IS_MODIFIER_KEYCODE(keycode)) { // mod+mouse is also acceptable // or is it? mod+workspace e.g.
                 auto_pointer_layer_timer = 0;

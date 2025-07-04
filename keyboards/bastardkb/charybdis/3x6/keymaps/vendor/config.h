@@ -66,7 +66,7 @@
 #define CHARYBDIS_MINIMUM_SNIPING_DPI 150
 #define CHARYBDIS_SNIPING_DPI_CONFIG_STEP 50
 
-// #define MACCEL_DEBUG
+#define MACCEL_DEBUG
 /*
  * Requires enabling float support for printf!
  */

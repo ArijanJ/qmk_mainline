@@ -302,7 +302,7 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             if (record->event.pressed) {
                 dragscroll_timer = timer_read32(); // start timer on dragscroll down
             } else { // on release
-                if (!(timer_elapsed32(dragscroll_timer) > 150)) {
+                if (!(timer_elapsed32(dragscroll_timer) > 120)) {
                     tap_code16(KC_BTN3);
                 }
                 dragscroll_timer = 0; // nullify timer on dragscroll release
