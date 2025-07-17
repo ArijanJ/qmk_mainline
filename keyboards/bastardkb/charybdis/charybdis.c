@@ -176,6 +176,8 @@ void charybdis_set_pointer_dragscroll_enabled(bool enable) {
     maybe_update_pointing_device_cpi(&g_charybdis_config);
 }
 
+uint16_t middle_click_scroll_buffer = 0;
+
 /**
  * \brief Augment the pointing device behavior.
  *
@@ -215,6 +217,7 @@ report_mouse_t pointing_device_task_kb(report_mouse_t mouse_report) {
         pointing_device_task_charybdis(&mouse_report);
         mouse_report = pointing_device_task_user(mouse_report);
     }
+    middle_click_scroll_buffer += mouse_report.y;
     return mouse_report;
 }
 
@@ -299,15 +302,20 @@ bool process_record_kb(uint16_t keycode, keyrecord_t* record) {
             }
             break;
         case DRAGSCROLL_MODE:
+            //charybdis_set_pointer_sniping_enabled(record->event.pressed);
             if (record->event.pressed) {
                 dragscroll_timer = timer_read32(); // start timer on dragscroll down
+                middle_click_scroll_buffer = 0;
+                register_code16(KC_BTN8);
             } else { // on release
-                if (!(timer_elapsed32(dragscroll_timer) > 120)) {
+                if ((timer_elapsed32(dragscroll_timer) < 120) && middle_click_scroll_buffer < 10) {
                     tap_code16(KC_BTN3);
+                    middle_click_scroll_buffer = 0;
                 }
                 dragscroll_timer = 0; // nullify timer on dragscroll release
+                unregister_code16(KC_BTN8);
             }
-            charybdis_set_pointer_dragscroll_enabled(record->event.pressed);
+            // charybdis_set_pointer_dragscroll_enabled(record->event.pressed);
             break;
         case DRAGSCROLL_MODE_TOGGLE:
             if (record->event.pressed) {

@@ -1,9 +1,12 @@
 VIA_ENABLE = yes
+NKRO_ENABLE = yes
 CONSOLE_ENABLE = yes
 EXTRAKEY_ENABLE = yes
-NKRO_ENABLE = yes
-
+LAYER_LOCK_ENABLE = yes
 KEY_OVERRIDE_ENABLE = yes
+OS_DETECTION_ENABLE = yes
+
+#SRC += features/sentence_case.c
 
 # MACCEL
 MACCEL_VIA_ENABLE = no

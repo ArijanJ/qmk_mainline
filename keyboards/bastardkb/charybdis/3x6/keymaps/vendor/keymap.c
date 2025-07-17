@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include QMK_KEYBOARD_H
+//#include "features/sentence_case.h"
 
 #ifdef MACCEL_ENABLE
 #    include "maccel/maccel.h"
@@ -87,7 +88,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           SFT_ESC,   KC_Q,    KC_J,    KC_V,    KC_D,    KC_K,      KC_X,    KC_H,   KC_SLSH, KC_COMM,  KC_DOT, C(KC_BSPC),
      // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                              LGUI_CBS,  NAV_SPC, MUTE_BROWSE,      NAV_ENT,  SPC_NUM
+                              LGUI_CBS,  NAV_SPC, MO(LAYER_BROWSE),      NAV_ENT,  SPC_NUM
      //                            ╰───────────────────────────╯ ╰──────────────────╯
      ),
 
@@ -142,11 +143,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
      [LAYER_BROWSE] = LAYOUT(
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-          MO(LAYER_INTERNALS), XXXXXXX, C(KC_W), XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+          MO(LAYER_INTERNALS), XXXXXXX, C(KC_W), XXXXXXX, XXXXXXX, XXXXXXX,       KC_F14, KC_F15, KC_F17, KC_F18, KC_F19, KC_F20,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           KC_LCTL, XXXXXXX, XXXXXXX, MEDIA, XXXXXXX, GAMING_TOGGLE, A(KC_LEFT), C(KC_TAB), C(S(KC_TAB)), A(KC_RGHT), XXXXXXX, XXXXXXX,
      // ├──────────────────────────────────────────────────────┤ ├───   ───────────────────────────────────────────────────┤
-          FAKE_MOD, ZOOM_MOD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
+          FAKE_MOD, ZOOM_MOD, XXXXXXX, XXXXXXX, XXXXXXX, KC_MUTE,          KC_F13, KC_F21, XXXXXXX, XXXXXXX, KC_F22, KC_F16,
      // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
                                         XXXXXXX, XXXXXXX, _______,    XXXXXXX, _______
      //                            ╰───────────────────────────╯ ╰──────────────────╯
@@ -308,7 +309,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
                     if (fake_mod_active) {
                         tap_code(KC_BRID);
                     } else if (zoom_mod_active) {
-                        tap_code16(S(C(KC_EQUAL)));
+                        tap_code16(C(KC_EQUAL));
                     } else if (layer_state_is(LAYER_NAV)) {
                         tap_code(KC_DOWN);
                     } else {
@@ -318,7 +319,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
                     if (fake_mod_active) {
                         tap_code(KC_BRIU);
                     } else if (zoom_mod_active) {
-                        tap_code16(S(C(KC_MINUS)));
+                        tap_code16(C(KC_MINUS));
                     } else if (layer_state_is(LAYER_NAV)) {
                         tap_code(KC_UP);
                     } else {
@@ -352,11 +353,24 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 #        include "print.h"
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+    //if (!process_sentence_case(keycode, record)) { return false; }
+
     if (keycode == FAKE_MOD) {
+        if (zoom_mod_active) {
+            if (record->event.pressed) { // act as shift instead
+                register_mods(MOD_BIT(KC_LSFT));
+            } else {
+                unregister_mods(MOD_BIT(KC_LSFT));
+            }
+            return false;
+        }
         fake_mod_active = record->event.pressed;
         return false;
     } else if (keycode == ZOOM_MOD) {
         zoom_mod_active = record->event.pressed;
+        if (!record->event.pressed) {
+            unregister_mods(MOD_BIT(KC_LSFT));
+        }
         return false;
     } else if (keycode == HOLD_MOUSE_LAYER) {
         hold_mouse_layer = record->event.pressed;
