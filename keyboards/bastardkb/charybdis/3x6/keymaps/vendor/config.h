@@ -91,5 +91,7 @@
 
 #endif // POINTING_DEVICE_ENABLE
 
-//#define FLOW_TAP_TERM 60
+//#define PERMISSIVE_HOLD
+
+#define FLOW_TAP_TERM 60
 #define CHORDAL_HOLD

@@ -214,6 +214,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 // clang-format on
 
+const char chordal_hold_layout[MATRIX_ROWS][MATRIX_COLS] PROGMEM =
+    LAYOUT(
+        'L', 'L', 'L', 'L', 'L', 'L',  'R', 'R', 'R', 'R', 'R', 'R',
+        'L', 'L', 'L', 'L', 'L', 'L',  'R', 'R', 'R', 'R', 'R', 'R',
+        'L', 'L', 'L', 'L', 'L', 'L',  'R', 'R', 'R', 'R', 'R', 'R',
+                       'L', 'L', 'L',  'R', 'R'
+    );
+
 void keyboard_post_init_user(void) {
     keyboard_post_init_maccel();
 }
@@ -577,9 +585,47 @@ const key_override_t brightness_down_override = ko_make_basic(MOD_MASK_SHIFT, KC
 // This globally defines all key overrides to be used
 const key_override_t *key_overrides[] = {&brightness_up_override, &brightness_down_override};
 
+/*bool is_flow_tap_key(uint16_t keycode) {
+    if ((get_mods() & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
+        return false; // Disable Flow Tap on hotkeys.
+    }
+    switch (keycode) {
+        case NAV_SPC:
+        case SPC_NUM:
+            return false;
+    }
+    switch (get_tap_keycode(keycode)) {
+        case KC_SPC:
+        case KC_A ... KC_Z:
+        case KC_DOT:
+        case KC_COMM:
+        case KC_SCLN:
+        case KC_SLSH:
+            return true;
+    }
+    return false;
+}*/
+
+uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
+                           uint16_t prev_keycode) {
+    if (is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode)) {
+        switch (keycode) {
+        case NAV_SPC:
+        case SPC_NUM:
+          return 0;  // Short timeout on these keys.
+
+        default:
+          return FLOW_TAP_TERM;  // Longer timeout otherwise.
+        }
+    }
+    return 0;
+}
+
 /*enum { // Dances
     TD_PUNCT_SPACE_OSS
 }
+
+
 
 void punct_space_oss(tap_dance_state_t *state, void *user_data) {
     if (state->count >= 100) {
