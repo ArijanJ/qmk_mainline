@@ -32,7 +32,11 @@
 #define TAPPING_FORCE_HOLD
 
 #define HOLD_ON_OTHER_KEY_PRESS_PER_KEY
-#define QUICK_TAP_TERM 0
+#define QUICK_TAP_TERM 120
+#define QUICK_TAP_TERM_PER_KEY
+
+#define ONESHOT_TAP_TOGGLE 3  /* Tapping this number of times holds the key until tapped once again. */
+//#define ONESHOT_TIMEOUT 5000  /* Time (in ms) before the one shot key is released */
 
 #define COMBO_TERM 20
 
@@ -86,3 +90,6 @@
 
 
 #endif // POINTING_DEVICE_ENABLE
+
+//#define FLOW_TAP_TERM 60
+#define CHORDAL_HOLD

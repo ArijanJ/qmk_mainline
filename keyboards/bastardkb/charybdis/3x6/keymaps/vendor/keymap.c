@@ -59,19 +59,29 @@ static uint16_t auto_pointer_layer_timer = 0;
 #define MEDIA LT(LAYER_MEDIA, KC_MPLY)
 #define SYM_TAB LT(LAYER_SYMBOL, KC_TAB)
 #define LC_TAB MT(MOD_LCTL, KC_TAB)
+#define LC_CBSP MT(MOD_LCTL, KC_BSPC)
 #define SFT_ESC MT(MOD_LSFT, KC_ESC)
 #define SPC_NUM LT(LAYER_NUMBER, KC_SPC)
 #define LGUI_CBS MT(MOD_LGUI, KC_BSPC)
+#define LGUI_OSS MT(MOD_LGUI, KC_LSFT)
 #define BROWSE_CBS LT(LAYER_BROWSE, KC_BSPC)
 #define ESC_INT LT(LAYER_INTERNALS, KC_ESC)
 #define ESC_SYM LT(LAYER_SYMBOL, KC_ESC)
 #define MUTE_BROWSE LT(LAYER_BROWSE, KC_MUTE)
+#define OSSPC_BROWSE LT(LAYER_BROWSE, KC_NO)
+
+#define HRC(x) MT(MOD_LCTL, x)
+#define HRS(x) MT(MOD_LSFT, x)
+#define HRA(x) MT(MOD_LALT, x)
+#define HRG(x) MT(MOD_LGUI, x)
 
 enum custom_keycodes {
     FAKE_MOD = SAFE_RANGE,
     ZOOM_MOD,
     GAMING_TOGGLE,
     HOLD_MOUSE_LAYER,
+    OSS_THUMB,
+    OSS_SPACE
 };
 bool fake_mod_active = false;
 bool zoom_mod_active = false;
@@ -84,11 +94,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
           SYM_TAB,   KC_W,    KC_L,    KC_Y,    KC_P,    KC_B,      KC_Z,    KC_F,    KC_O,    KC_U, KC_QUOTE,  KC_MINUS,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          LC_TAB,    KC_C,    KC_R,    KC_S,    KC_T,    KC_G,      KC_M,    KC_N,    KC_E,    KC_I,     KC_A,  KC_BSPC,
+          LC_CBSP, HRC(KC_C), HRS(KC_R), HRA(KC_S), HRG(KC_T), LT(LAYER_SYMBOL, KC_G),      KC_M,    HRG(KC_N),    HRA(KC_E),    HRS(KC_I),     HRC(KC_A),  KC_BSPC,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           SFT_ESC,   KC_Q,    KC_J,    KC_V,    KC_D,    KC_K,      KC_X,    KC_H,   KC_SLSH, KC_COMM,  KC_DOT, C(KC_BSPC),
      // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                              LGUI_CBS,  NAV_SPC, MO(LAYER_BROWSE),      NAV_ENT,  SPC_NUM
+                              OSS_THUMB,  NAV_SPC, OSSPC_BROWSE,      NAV_ENT,  SPC_NUM
      //                            ╰───────────────────────────╯ ╰──────────────────╯
      ),
 
@@ -96,7 +106,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
           _______,    KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P, _______,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          _______,    KC_A,    KC_S,    KC_D,    KC_F,    KC_G,       KC_H,    KC_J,    KC_K,    KC_L, KC_SCLN, _______,
+          _______, HRC(KC_A), HRA(KC_S), HRS(KC_D), HRS(KC_F),    KC_G,       KC_H,    HRG(KC_J),    HRA(KC_K),    HRS(KC_L), HRC(KC_SCLN), _______,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           _______,    KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,       KC_N,    KC_M, KC_COMM,  KC_DOT, KC_SLSH, _______,
      // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
@@ -118,11 +128,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
      [LAYER_NAV] = LAYOUT(
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-          _______, _______, _______, KC_END,  _______, _______,    _______,  _______,  _______, _______, _______, MO(LAYER_INTERNALS),
+          _______, _______, _______, KC_END,  _______, _______,    _______,  _______,  _______, _______, KC_PGUP, MO(LAYER_INTERNALS),
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           _______, KC_HOME, _______, KC_DEL, C(KC_RGHT),C(KC_HOME), KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_BSPC, _______,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          KC_LSFT, _______, _______, _______,  EE_CLR, C(KC_LEFT), _______,    _______,    _______,    _______, _______, _______,
+          KC_LSFT, _______, _______, _______,  EE_CLR, C(KC_LEFT), KC_PGDN,    _______,    _______,    _______, _______, _______,
      // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
                                         _______, KC_LSFT, _______,    _______, KC_LSFT
      //                            ╰───────────────────────────╯ ╰──────────────────╯
@@ -143,9 +153,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
      [LAYER_BROWSE] = LAYOUT(
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-          MO(LAYER_INTERNALS), XXXXXXX, C(KC_W), XXXXXXX, XXXXXXX, XXXXXXX,       KC_F14, KC_F15, KC_F17, KC_F18, KC_F19, KC_F20,
+ MO(LAYER_INTERNALS), C(S(KC_1)), C(KC_W), XXXXXXX, XXXXXXX, XXXXXXX,       KC_F14, KC_F15, KC_F17, KC_F18, KC_F19, KC_F20,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          KC_LCTL, XXXXXXX, XXXXXXX, MEDIA, XXXXXXX, GAMING_TOGGLE, A(KC_LEFT), C(KC_TAB), C(S(KC_TAB)), A(KC_RGHT), XXXXXXX, XXXXXXX,
+          KC_LCTL, C(S(KC_2)), C(S(KC_3)), MEDIA, XXXXXXX, GAMING_TOGGLE, A(KC_LEFT), C(KC_TAB), C(S(KC_TAB)), A(KC_RGHT), XXXXXXX, XXXXXXX,
      // ├──────────────────────────────────────────────────────┤ ├───   ───────────────────────────────────────────────────┤
           FAKE_MOD, ZOOM_MOD, XXXXXXX, XXXXXXX, XXXXXXX, KC_MUTE,          KC_F13, KC_F21, XXXXXXX, XXXXXXX, KC_F22, KC_F16,
      // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
@@ -377,6 +387,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
 
+    if (keycode == OSS_THUMB) {
+        if (record->event.pressed) { // hijack tap only
+            if (get_oneshot_mods() == MOD_BIT(KC_LSFT)) { // second press
+                caps_word_on();
+            } else {
+                set_oneshot_mods(MOD_BIT(KC_LSFT));
+            }
+            return false;
+        }
+    }
+
+    if (keycode == LT(LAYER_BROWSE, KC_NO)) {
+        if (record->tap.count && record->event.pressed) {
+            tap_code16(KC_SPC);
+            set_oneshot_mods(MOD_BIT(KC_LSFT));
+            return false;
+        }
+        return true;
+    }
+
     if (keycode == NAV_ENT) {
         if (is_gaming && record->tap.count && record->event.pressed) {
             tap_code_delay(KC_ENTER, 16);
@@ -400,11 +430,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         return false;
     }
 
-    if ((keycode == LGUI_CBS || keycode == BROWSE_CBS) && record->event.pressed) {
+    if ((keycode == LGUI_CBS || keycode == BROWSE_CBS || keycode == LC_CBSP) && record->event.pressed) {
         if (record->tap.count && record->event.pressed) {
             tap_code16(C(KC_BSPC));
             return false;
         }
+    }
+    if ((keycode == LGUI_OSS) && record->event.pressed) {
+        if (record->tap.count && record->event.pressed) {
+            set_oneshot_mods(MOD_BIT(KC_LSFT));
+            return false;
+        }
+    }
+
+    if (layer_state_is(LAYER_NUMBER) && record->event.pressed) {
+        clear_weak_mods(); // Clear any residual weak shift mod from the previous key (work around qmk#17569).
+        send_keyboard_report();
     }
 
     if (layer_state_is(LAYER_POINTER)) {
@@ -479,19 +520,54 @@ void rgb_matrix_update_pwm_buffers(void);
 bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case LC_TAB:
-            return true; // Immediately select the hold action when another key is pressed.
         case SYM_TAB:
-            return true;
+        case LGUI_OSS:
         case LGUI_CBS:
         case BROWSE_CBS:
-            return true;
+        case MEDIA:
+            return true; // Immediately select the hold action when another key is pressed.
         case NAV_SPC:
-            return false;
         case SPC_NUM:
             return false;
         default:
-            return true;
+            return false;
     }
+}
+
+uint16_t get_quick_tap_term(uint16_t keycode, keyrecord_t *record) {
+    switch (keycode) {
+        case LC_CBSP: // allow repeat on double-tap
+            return QUICK_TAP_TERM;
+        case ESC_SYM: // allow escape hold?
+            return QUICK_TAP_TERM;
+        case NAV_SPC: // don't repeat spaces
+        case SPC_NUM:
+            return 0;
+        default:
+            return QUICK_TAP_TERM;
+    }
+}
+
+// SFT_ESC,   KC_Q,    KC_J,    KC_V,    KC_D,    KC_K,      KC_X,    KC_H,   KC_SLSH, KC_COMM,  KC_DOT, C(KC_BSPC),
+
+
+const uint16_t PROGMEM question_mark_combo[] = {KC_SLSH, KC_COMMA, COMBO_END};
+combo_t key_combos[] = {
+    COMBO(question_mark_combo, S(KC_SLSH)),
+    //COMBO(test_combo2, LCTL(KC_Z)), // keycodes with modifiers are possible too!
+};
+
+bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
+                      uint16_t other_keycode, keyrecord_t* other_record) {
+    // Exceptionally allow some one-handed chords for hotkeys.
+    switch (tap_hold_keycode) {
+        case NAV_SPC:
+        case SPC_NUM:
+            return true;
+            break;
+    }
+    // Otherwise defer to the opposite hands rule.
+    return get_chordal_hold_default(tap_hold_record, other_record);
 }
 
 const key_override_t brightness_up_override   = ko_make_basic(MOD_MASK_SHIFT, KC_VOLU, KC_BRIU);
@@ -499,3 +575,18 @@ const key_override_t brightness_down_override = ko_make_basic(MOD_MASK_SHIFT, KC
 
 // This globally defines all key overrides to be used
 const key_override_t *key_overrides[] = {&brightness_up_override, &brightness_down_override};
+
+/*enum { // Dances
+    TD_PUNCT_SPACE_OSS
+}
+
+void punct_space_oss(tap_dance_state_t *state, void *user_data) {
+    if (state->count >= 100) {
+        SEND_STRING("Safety dance!");
+        reset_tap_dance(state);
+    }
+}
+
+tap_dance_action_t tap_dance_actions[] = {
+    [TD_PUNCT_SPACE_OSS] = ACTION_TAP_DANCE_FN(punct_space_oss),
+};*/
