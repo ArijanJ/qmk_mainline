@@ -246,8 +246,8 @@ typedef enum scrolling_state {
 scrolling_state_t scroll_state        = SCROLLING_UNDECIDED;
 report_mouse_t    scroll_state_buffer = {};
 
-uint8_t horizontal_buffer = 0;
-uint8_t vertical_buffer   = 0;
+int16_t horizontal_buffer = 0;
+int16_t vertical_buffer   = 0;
 
 #ifdef POINTING_DEVICE_ENABLE
 #    ifdef CHARYBDIS_AUTO_POINTER_LAYER_TRIGGER_ENABLE
@@ -273,17 +273,17 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 
     if (layer_state_is(LAYER_BROWSE) || layer_state_is(LAYER_NAV)) {
         // Decide direction
-        horizontal_buffer += abs(accelerated_report.x);
-        vertical_buffer += abs(accelerated_report.y);
+        horizontal_buffer += accelerated_report.x;
+        vertical_buffer += accelerated_report.y;
 
-        if (horizontal_buffer > SCROLLING_DIRECTION_TRIGGER_DELTA) {
+        if (abs(horizontal_buffer) > SCROLLING_DIRECTION_TRIGGER_DELTA) {
             if (scroll_state != SCROLLING_HORIZONTAL) {
                 custom_trackball_counter = 0;
             }
             scroll_state      = SCROLLING_HORIZONTAL;
             vertical_buffer   = 0;
             horizontal_buffer = SCROLLING_DIRECTION_TRIGGER_DELTA / 2; // prioritize same dir
-        } else if (vertical_buffer > SCROLLING_DIRECTION_TRIGGER_DELTA) {
+        } else if (abs(vertical_buffer) > SCROLLING_DIRECTION_TRIGGER_DELTA) {
             if (scroll_state != SCROLLING_VERTICAL) {
                 custom_trackball_counter = 0;
             }
@@ -307,9 +307,9 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
         // }
 
         if (scroll_state == SCROLLING_HORIZONTAL) {
-            custom_trackball_counter += abs(accelerated_report.x);
+            custom_trackball_counter += accelerated_report.x;
         } else if (scroll_state == SCROLLING_VERTICAL) {
-            custom_trackball_counter += abs(accelerated_report.y);
+            custom_trackball_counter += accelerated_report.y;
         }
 
         if (abs(custom_trackball_counter) >= CUSTOM_TRACKBALL_TRIGGER_DELTA) {
@@ -351,7 +351,12 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
                     }
                 }
             }
-            custom_trackball_counter -= CUSTOM_TRACKBALL_TRIGGER_DELTA;
+
+            if (custom_trackball_counter < 0)
+                custom_trackball_counter += CUSTOM_TRACKBALL_TRIGGER_DELTA;
+            else
+                custom_trackball_counter -= CUSTOM_TRACKBALL_TRIGGER_DELTA;
+
             // reset the buffer but divide the curr dir by two to prioritize same direction
             vertical_buffer   = 0;
             horizontal_buffer = 0;
