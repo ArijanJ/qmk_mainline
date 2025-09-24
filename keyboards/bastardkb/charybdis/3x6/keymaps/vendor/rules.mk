@@ -9,6 +9,7 @@ KEY_OVERRIDE_ENABLE = yes
 OS_DETECTION_ENABLE = yes
 
 #SRC += features/sentence_case.c
+SRC += features/select_word.c
 
 # MACCEL
 MACCEL_VIA_ENABLE = no

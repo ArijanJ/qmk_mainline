@@ -14,7 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <stdint.h>
 #include QMK_KEYBOARD_H
+#include "features/select_word.h"
+#include "charybdis.h"
 //#include "features/sentence_case.h"
 
 #ifdef MACCEL_ENABLE
@@ -81,8 +84,11 @@ enum custom_keycodes {
     GAMING_TOGGLE,
     HOLD_MOUSE_LAYER,
     OSS_THUMB,
-    OSS_SPACE
+    OSS_SPACE,
+    SELWORD
 };
+const uint16_t SELWD = SELWORD;
+
 bool fake_mod_active = false;
 bool zoom_mod_active = false;
 bool is_gaming = false;
@@ -94,7 +100,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
           SYM_TAB,   KC_W,    KC_L,    KC_Y,    KC_P,    KC_B,      KC_Z,    KC_F,    KC_O,    KC_U, KC_QUOTE,  KC_MINUS,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          C(KC_BSPC), HRC(KC_C), HRS(KC_R), HRA(KC_S), HRG(KC_T), LT(LAYER_SYMBOL, KC_G),      KC_M,    HRG(KC_N),    HRA(KC_E),    HRS(KC_I),     HRC(KC_A),  KC_BSPC,
+          C(KC_BSPC), HRC(KC_C), HRS(KC_R), HRA(KC_S), HRG(KC_T), KC_G,      KC_M,    HRG(KC_N),    HRA(KC_E),    HRS(KC_I),     HRC(KC_A),  KC_BSPC,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           KC_ESC,   KC_Q,    KC_J,    KC_V,    KC_D,    KC_K,      KC_X,    KC_H,   KC_SLSH, KC_COMM,  KC_DOT, C(KC_BSPC),
      // ╰──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
@@ -128,9 +134,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
      [LAYER_NAV] = LAYOUT(
      // ╭──────────────────────────────────────────────────────╮ ╭──────────────────────────────────────────────────────╮
-          _______, _______, _______, KC_END,  _______, _______,    _______,  _______,  _______, _______, KC_PGUP, MO(LAYER_INTERNALS),
+          _______, _______, SELWD, KC_END,  _______, _______,    _______,  _______,  _______, _______, KC_PGUP, MO(LAYER_INTERNALS),
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
-          _______, KC_HOME, _______, KC_DEL, C(KC_RGHT),C(KC_HOME), KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_BSPC, _______,
+          KC_LCTL, KC_HOME, C(KC_LEFT), KC_DEL, C(KC_RGHT),C(KC_HOME), KC_LEFT, KC_DOWN, KC_UP, KC_RGHT, KC_BSPC, _______,
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           KC_LSFT, _______, _______, _______,  EE_CLR, C(KC_LEFT), KC_PGDN,    _______,    _______,    _______, _______, _______,
      // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
@@ -146,7 +152,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      // ├──────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────┤
           XXXXXXX, KC_F1, KC_F2, KC_F3, KC_F4, KC_F5,                KC_F6, KC_F7, KC_F8, KC_F9, KC_DOT, KC_F12,
      // ╰─────────────────────────────────────────────────────┤ ├──────────────────────────────────────────────────────╯
-                                        XXXXXXX, XXXXXXX, _______,    XXXXXXX, _______
+                                        XXXXXXX, KC_SPC, _______,    KC_RSFT, _______
      //                            ╰───────────────────────────╯ ╰──────────────────╯
      ),
 
@@ -372,6 +378,7 @@ report_mouse_t pointing_device_task_user(report_mouse_t mouse_report) {
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     //if (!process_sentence_case(keycode, record)) { return false; }
+    if (!process_select_word(keycode, record)) { return false; }
 
     if (keycode == FAKE_MOD) {
         if (zoom_mod_active) {
@@ -511,6 +518,9 @@ layer_state_t layer_state_set_user(layer_state_t state) {
     charybdis_set_pointer_sniping_enabled(layer_state_cmp(state, CHARYBDIS_AUTO_SNIPING_ON_LAYER));
 #    endif // CHARYBDIS_AUTO_SNIPING_ON_LAYER
 
+    // More consistant DPI for ball text navigation
+    charybdis_set_pointer_sniping_enabled(layer_state_cmp(state, LAYER_NAV) || layer_state_cmp(state, LAYER_BROWSE));
+
     scroll_state      = SCROLLING_UNDECIDED; // reset scrolling dir buffer on layer change
     horizontal_buffer = 0;
     vertical_buffer   = 0;
@@ -534,6 +544,7 @@ bool get_hold_on_other_key_press(uint16_t keycode, keyrecord_t *record) {
         case LGUI_CBS:
         case BROWSE_CBS:
         case MEDIA:
+        case OSSPC_BROWSE:
             return true; // Immediately select the hold action when another key is pressed.
         case NAV_SPC:
         case SPC_NUM:
@@ -571,6 +582,9 @@ bool get_chordal_hold(uint16_t tap_hold_keycode, keyrecord_t* tap_hold_record,
     // Exceptionally allow some one-handed chords for hotkeys.
     switch (tap_hold_keycode) {
         case NAV_SPC:
+        case OSSPC_BROWSE:
+        case MEDIA:
+        case NAV_ENT:
         case SPC_NUM:
             return true;
             break;
@@ -585,7 +599,7 @@ const key_override_t brightness_down_override = ko_make_basic(MOD_MASK_SHIFT, KC
 // This globally defines all key overrides to be used
 const key_override_t *key_overrides[] = {&brightness_up_override, &brightness_down_override};
 
-/*bool is_flow_tap_key(uint16_t keycode) {
+bool is_flow_tap_key(uint16_t keycode) {
     if ((get_mods() & (MOD_MASK_CG | MOD_BIT_LALT)) != 0) {
         return false; // Disable Flow Tap on hotkeys.
     }
@@ -604,22 +618,20 @@ const key_override_t *key_overrides[] = {&brightness_up_override, &brightness_do
             return true;
     }
     return false;
-}*/
-
-uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,
-                           uint16_t prev_keycode) {
-    if (is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode)) {
-        switch (keycode) {
-        case NAV_SPC:
-        case SPC_NUM:
-          return 0;  // Short timeout on these keys.
-
-        default:
-          return FLOW_TAP_TERM;  // Longer timeout otherwise.
-        }
-    }
-    return 0;
 }
+
+//uint16_t get_flow_tap_term(uint16_t keycode, keyrecord_t* record,<D-d>/    if (is_flow_tap_key(keycode) && is_flow_tap_key(prev_keycode)) {
+//        switch (keycode) {
+//        case NAV_SPC:
+//        case SPC_NUM:
+//          return 0;  // Short timeout on these keys.
+//
+//        default:
+//          return FLOW_TAP_TERM;  // Longer timeout otherwise.
+//        }
+//    }
+//    return 0;
+//}
 
 /*enum { // Dances
     TD_PUNCT_SPACE_OSS
